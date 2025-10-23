@@ -14,12 +14,17 @@ public class Card : MonoBehaviour
     [HideInInspector] public bool isFlipping = false;
 
     [SerializeField]private SpriteRenderer spriteRenderer;
+    [SerializeField]private BoxCollider2D boxCollder;
 
     [Header("Flip Animation")]
     public float flipSpeed = 400f; // rotation speed in degrees per second
     private Quaternion faceRotation = Quaternion.Euler(0, 0, 0);
     private Quaternion backRotation = Quaternion.Euler(0, 180, 0);
 
+    private void Awake()
+    {
+        boxCollder.enabled = false;
+    }
     public void Initialize(int number )
     {
         cardID = number;
@@ -27,7 +32,7 @@ public class Card : MonoBehaviour
             idText.text = cardID.ToString();
 
         // Start coroutine for delayed back display
-        StartCoroutine(ShowBackWithDelay(1.5f));
+        StartCoroutine(ShowBackWithDelay(GameManager.Instance.showCardBackDelay));
     }
     private IEnumerator ShowBackWithDelay(float delay)
     {
@@ -40,6 +45,7 @@ public class Card : MonoBehaviour
         isMatched = false;
         isFlipping = false;
         spriteRenderer.sprite = backSprite;
+        boxCollder.enabled = true;
         if (idText != null)
             idText.enabled = false;
     }

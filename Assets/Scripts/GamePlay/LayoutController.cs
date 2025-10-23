@@ -19,6 +19,7 @@ public class LayoutController : MonoBehaviour
         spawnedCards.Clear();
     }
 
+    //Spawn cards in grid layout, scaling to fit screen
     public void SpawnDeck(List<int> deck, GameObject cardPrefab, Transform parent)
     {
         if (cardPrefab == null || deck == null || deck.Count == 0)
@@ -29,9 +30,9 @@ public class LayoutController : MonoBehaviour
 
         ClearBoard();
 
-        int cols = GameManager.Instance.cols; // Max columns per row
+        int cols = GameManager.Instance.cols;
+        int rows = GameManager.Instance.rows;
         int totalCards = deck.Count;
-        int rows = Mathf.CeilToInt((float)totalCards / cols);
 
         // Card size at scale 1
         SpriteRenderer sr = cardPrefab.GetComponent<SpriteRenderer>();

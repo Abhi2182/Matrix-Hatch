@@ -94,6 +94,7 @@ public class MatchChecker : MonoBehaviour
 
                 GameManager.Instance?.OnMismatch();
             }
+            GameManager.Instance?.IncreaseMoveCount();
         }
 
         isProcessing = false;

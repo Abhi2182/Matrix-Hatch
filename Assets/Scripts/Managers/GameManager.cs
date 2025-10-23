@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public int score = 0;
     public int movesMade = 0;
     public bool isGameOver = false;
+    public float showCardBackDelay = 1.5f;
 
     // Prefab & containers (assign in inspector)
     public GameObject cardPrefab;
@@ -52,20 +53,20 @@ public class GameManager : MonoBehaviour
                 cols = 4;
                 break;
             case 4:
-                rows = 5;
-                cols = 4;
+                rows = 4;
+                cols = 5;
                 break;
             case 5:
-                rows = 6;
-                cols = 5;
+                rows = 5;
+                cols = 6;
                 break;
             case 6:
                 rows = 6;
-                cols = 6;
+                cols = 7;
                 break;
             case 7:
-                rows = 7;
-                cols = 6;
+                rows = 6;
+                cols = 8;
                 break;
             default:
                 rows = 2;
@@ -121,13 +122,20 @@ public class GameManager : MonoBehaviour
     public void AddScore(int points)
     {
         score += points;
-        // TODO: update UI
+        UIManager.Instance?.UpdateScore(score);
+    }
+
+    public void IncreaseMoveCount()
+    {
+        movesMade ++;
+        UIManager.Instance?.UpdateMoves(movesMade);
     }
 
     public void OnMismatch()
     {
-        // optional negative points for mismatch
+        // Negative 5 points for mismatch
         score = Mathf.Max(0, score - 5);
+        UIManager.Instance?.UpdateScore(score);
     }
 
     public bool CanPlayerFlip(Card _card)
@@ -157,6 +165,6 @@ public class GameManager : MonoBehaviour
     private void OnGameComplete()
     {
         isGameOver = true;
-        Debug.Log("==> Game Completed!");
+        UIManager.Instance?.ShowWinPanel(score);
     }
 }
