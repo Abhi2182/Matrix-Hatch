@@ -34,6 +34,45 @@ public class GameManager : MonoBehaviour
     {
         // sanity: check components if not assigned
         if (layoutController == null) Debug.Log("LayoutController not assigned in GameManager!");
+        
+        int selectedLevel = PlayerPrefs.GetInt("SelectedLevel", 1);
+        // Example: define grid rows and cols based on level
+        switch (selectedLevel)
+        {
+            case 1:
+                rows = 2;
+                cols = 3;
+                break;
+            case 2:
+                rows = 3;
+                cols = 4;
+                break;
+            case 3:
+                rows = 4;
+                cols = 4;
+                break;
+            case 4:
+                rows = 5;
+                cols = 4;
+                break;
+            case 5:
+                rows = 6;
+                cols = 5;
+                break;
+            case 6:
+                rows = 6;
+                cols = 6;
+                break;
+            case 7:
+                rows = 7;
+                cols = 6;
+                break;
+            default:
+                rows = 2;
+                cols = 3;
+                break;
+        }
+
 
         StartNewGame(rows, cols);
     }
