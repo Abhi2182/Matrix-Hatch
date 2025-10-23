@@ -4,11 +4,10 @@ using UnityEngine;
 public class LayoutController : MonoBehaviour
 {
     [Header("Grid Settings")]
-    public float spacing = 0.3f; // space between cards in world units
-    public Vector2 startPosition = new Vector2(-3f, 3f); // top-left start position
-    public bool centerGrid = true;
-
+    public float spacing = 0.3f; // space between cards
+    public float padding = 1f; // extra space at screen edges
     private List<GameObject> spawnedCards = new List<GameObject>();
+    [SerializeField]private Camera mainCam;
 
     public void ClearBoard()
     {
@@ -30,56 +29,70 @@ public class LayoutController : MonoBehaviour
 
         ClearBoard();
 
-        var rows = GameManager.Instance.rows;
-        var cols = GameManager.Instance.cols;
+        int cols = GameManager.Instance.cols; // Max columns per row
+        int totalCards = deck.Count;
+        int rows = Mathf.CeilToInt((float)totalCards / cols);
 
-        // figure out card size from its SpriteRenderer
+        // Card size at scale 1
         SpriteRenderer sr = cardPrefab.GetComponent<SpriteRenderer>();
-        float cardWidth = sr.bounds.size.x;
-        float cardHeight = sr.bounds.size.y;
-
-        // calculate total grid size
-        float gridWidth = cols * (cardWidth + spacing) - spacing;
-        float gridHeight = rows * (cardHeight + spacing) - spacing;
-
-        Vector2 startPos;
-        if (centerGrid)
+        if (sr == null)
         {
-            // center grid around (0,0)
-            startPos = new Vector2(-gridWidth / 2f + cardWidth / 2f, gridHeight / 2f - cardHeight / 2f);
+            Debug.LogError("Card prefab missing SpriteRenderer!");
+            return;
         }
-        else
-        {
-            // use top-left position manually
-            startPos = startPosition;
-        }
+        Vector2 spriteSize = sr.bounds.size;
 
-        int total = rows * cols;
+        float spacingX = spacing;
+        float spacingY = spacing;
+
+        // Screen usable size
+        float screenHeight = mainCam.orthographicSize * 2f - padding * 2f;
+        float screenWidth = screenHeight * mainCam.aspect - padding * 2f;
+
+        // Total grid size at scale 1
+        int maxCols = Mathf.Min(cols, totalCards);
+        float gridWidth = maxCols * spriteSize.x + (maxCols - 1) * spacingX;
+        float gridHeight = rows * spriteSize.y + (rows - 1) * spacingY;
+
+        // Calculate scale factor to fit screen
+        float scaleX = 1f, scaleY = 1f;
+        if (gridWidth > screenWidth)
+            scaleX = screenWidth / gridWidth;
+        if (gridHeight > screenHeight)
+            scaleY = screenHeight / gridHeight;
+
+        float finalScale = Mathf.Min(scaleX, scaleY, 1f); // never scale up, only down
+
+        // Place cards row by row
+        int cardIndex = 0;
         for (int r = 0; r < rows; r++)
         {
-            for (int c = 0; c < cols; c++)
+            int cardsInRow = Mathf.Min(cols, totalCards - r * cols);
+            float rowWidth = cardsInRow * spriteSize.x * finalScale + (cardsInRow - 1) * spacingX * finalScale;
+            float rowStartX = -rowWidth / 2f + (spriteSize.x * finalScale) / 2f;
+            float y = (rows / 2f - r - 0.5f) * (spriteSize.y * finalScale + spacingY * finalScale);
+
+            for (int c = 0; c < cardsInRow; c++)
             {
-                int index = r * cols + c;
-                if (index >= deck.Count)
-                    break;
+                if (cardIndex >= totalCards) break;
 
-                int cardNumber = deck[index];
-
+                int cardNumber = deck[cardIndex];
                 GameObject newCard = Instantiate(cardPrefab, parent);
-                newCard.name = $"Card_{cardNumber}_{index}";
+                newCard.name = $"Card_{cardNumber}_{cardIndex}";
 
-                float x = startPos.x + c * (cardWidth + spacing);
-                float y = startPos.y - r * (cardHeight + spacing);
+                float x = rowStartX + c * (spriteSize.x * finalScale + spacingX * finalScale);
                 newCard.transform.localPosition = new Vector3(x, y, 0f);
+
+                newCard.transform.localScale = new Vector3(finalScale, finalScale, 1f);
 
                 Card card = newCard.GetComponent<Card>();
                 if (card != null)
-                {
                     card.Initialize(cardNumber);
-                }
 
                 spawnedCards.Add(newCard);
+                cardIndex++;
             }
         }
     }
+
 }

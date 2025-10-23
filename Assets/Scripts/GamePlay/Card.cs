@@ -14,27 +14,27 @@ public class Card : MonoBehaviour
     [HideInInspector] public bool isFlipping = false;
 
     [SerializeField]private SpriteRenderer spriteRenderer;
-    [SerializeField]private float cardScale = 0.6f; // front image for hidden state
 
     [Header("Flip Animation")]
     public float flipSpeed = 400f; // rotation speed in degrees per second
     private Quaternion faceRotation = Quaternion.Euler(0, 0, 0);
     private Quaternion backRotation = Quaternion.Euler(0, 180, 0);
 
-    private void Awake()
-    {
-        ShowBackInstant();
-    }
-
     public void Initialize(int number )
     {
         cardID = number;
         if (idText != null)
             idText.text = cardID.ToString();
-        ShowBackInstant();
-    }
 
-    public void ShowBackInstant()
+        // Start coroutine for delayed back display
+        StartCoroutine(ShowBackWithDelay(1.5f));
+    }
+    private IEnumerator ShowBackWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ShowBack();
+    }
+    public void ShowBack()
     {
         isFaceUp = false;
         isMatched = false;
@@ -42,7 +42,6 @@ public class Card : MonoBehaviour
         spriteRenderer.sprite = backSprite;
         if (idText != null)
             idText.enabled = false;
-        transform.localScale = Vector3.one * cardScale;
     }
 
     public void TryFlip()
