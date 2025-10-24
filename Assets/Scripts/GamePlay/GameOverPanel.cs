@@ -7,8 +7,7 @@ using UnityEngine.UIElements;
 
 public class GameOverPanel : MonoBehaviour
 {
-    [SerializeField] private TMP_Text scoreText;
-    [SerializeField] private TMP_Text movesText;
+    [SerializeField] private TMP_Text scoreText; //final score display
     [SerializeField] private TMP_Text bestScoreText; //best score display based on level
     [SerializeField] private GameObject gameOverPanel;
 
@@ -24,12 +23,13 @@ public class GameOverPanel : MonoBehaviour
     {
         SceneManager.LoadScene("MenuScene");
     }
+
+    // update game over panel with final score and best score
     public void UpdateGameOverPanel(int finalScore, int movesMade)
     {
         if (scoreText != null)
             scoreText.text = "Score: " + finalScore;
-        if (movesText != null)
-            movesText.text = "Moves: " + movesMade;
+
         // Update best score based on level
         int selectedLevel = PlayerPrefs.GetInt("SelectedLevel", 1);
         string bestScoreKey = "BestScore_Level_" + selectedLevel;

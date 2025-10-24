@@ -4,10 +4,28 @@ using UnityEngine.UI;
 
 public class LevelSelection : MonoBehaviour
 {
-    [SerializeField]private Toggle[] levelToggles; // Assign 7 toggles in inspector
+    [SerializeField] private Toggle[] levelToggles;
 
-    public void OnPlayButtonClick()
+
+    private void Awake()
     {
+        // Initialize toggles based on saved selection
+        SetSavedToggle();
+    }
+
+    private void SetSavedToggle()
+    {
+        int savedLevel = PlayerPrefs.GetInt("SelectedLevel", 1);
+
+        if (savedLevel < 1 || savedLevel > levelToggles.Length) savedLevel = 1;
+
+        levelToggles[savedLevel - 1].isOn = true;
+    }
+
+    public void OnLevelToggleChanged(Toggle toggle)
+    {
+        if (!toggle.isOn) return; // only handle when toggle is turned on
+
         int selectedLevel = -1;
         for (int i = 0; i < levelToggles.Length; i++)
         {
@@ -20,7 +38,7 @@ public class LevelSelection : MonoBehaviour
 
         if (selectedLevel == -1)
         {
-            Debug.LogWarning("No level selected!");
+            Debug.Log("No level selected!");
             return;
         }
 
@@ -28,6 +46,11 @@ public class LevelSelection : MonoBehaviour
         PlayerPrefs.SetInt("SelectedLevel", selectedLevel);
         PlayerPrefs.Save();
 
+    }
+
+    // Called from UI button
+    public void OnPlayButtonClick()
+    {
         SceneManager.LoadScene("GamePlayScene");
     }
 }

@@ -35,7 +35,12 @@ public class GameManager : MonoBehaviour
     {
         // sanity: check components if not assigned
         if (layoutController == null) Debug.Log("LayoutController not assigned in GameManager!");
-        
+
+        SetGridbasedOnLevel();
+    }
+
+    public void  SetGridbasedOnLevel()
+    {
         int selectedLevel = PlayerPrefs.GetInt("SelectedLevel", 1);
         // Example: define grid rows and cols based on level
         switch (selectedLevel)
@@ -74,7 +79,6 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-
         StartNewGame(rows, cols);
     }
 
@@ -83,6 +87,8 @@ public class GameManager : MonoBehaviour
         isGameOver = false;
         score = 0;
         movesMade = 0;
+        UIManager.Instance?.UpdateScore(score);
+        UIManager.Instance?.UpdateMoves(movesMade);
         rows = r; cols = c;
 
         // generate deck
@@ -91,7 +97,7 @@ public class GameManager : MonoBehaviour
         var deck = GenerateDeck(total);
 
         // layout cards
-        layoutController.ClearBoard();
+        ///layoutController.ClearBoard();
         layoutController.SpawnDeck(deck, cardPrefab, cardsContainer);
     }
 
