@@ -34,19 +34,21 @@ public class LayoutController : MonoBehaviour
         int rows = GameManager.Instance.rows;
         int totalCards = deck.Count;
 
-        // Card size at scale 1
+        // Card size at scale = 1
         SpriteRenderer sr = cardPrefab.GetComponent<SpriteRenderer>();
         if (sr == null)
         {
             Debug.LogError("Card prefab missing SpriteRenderer!");
             return;
         }
+
         Vector2 spriteSize = sr.bounds.size;
 
+        // Fixed spacing
         float spacingX = spacing;
         float spacingY = spacing;
 
-        // Screen usable size
+        // Get usable screen area (inside camera view)
         float screenHeight = mainCam.orthographicSize * 2f - padding * 2f;
         float screenWidth = screenHeight * mainCam.aspect - padding * 2f;
 
@@ -55,23 +57,22 @@ public class LayoutController : MonoBehaviour
         float gridWidth = maxCols * spriteSize.x + (maxCols - 1) * spacingX;
         float gridHeight = rows * spriteSize.y + (rows - 1) * spacingY;
 
-        // Calculate scale factor to fit screen
-        float scaleX = 1f, scaleY = 1f;
-        if (gridWidth > screenWidth)
-            scaleX = screenWidth / gridWidth;
-        if (gridHeight > screenHeight)
-            scaleY = screenHeight / gridHeight;
+        // Compute scale factor (only downscale if needed)
+        float scaleX = screenWidth / gridWidth;
+        float scaleY = screenHeight / gridHeight;
+        float finalScale = Mathf.Min(scaleX, scaleY, 1f);
 
-        float finalScale = Mathf.Min(scaleX, scaleY, 1f); // never scale up, only down
+        // Center grid on screen
+        float totalGridHeight = rows * spriteSize.y * finalScale + (rows - 1) * spacingY * finalScale;
+        float startY = totalGridHeight / 2f - (spriteSize.y * finalScale) / 2f;
 
-        // Place cards row by row
         int cardIndex = 0;
         for (int r = 0; r < rows; r++)
         {
             int cardsInRow = Mathf.Min(cols, totalCards - r * cols);
             float rowWidth = cardsInRow * spriteSize.x * finalScale + (cardsInRow - 1) * spacingX * finalScale;
-            float rowStartX = -rowWidth / 2f + (spriteSize.x * finalScale) / 2f;
-            float y = (rows / 2f - r - 0.5f) * (spriteSize.y * finalScale + spacingY * finalScale);
+            float startX = -rowWidth / 2f + (spriteSize.x * finalScale) / 2f;
+            float y = startY - r * (spriteSize.y * finalScale + spacingY * finalScale);
 
             for (int c = 0; c < cardsInRow; c++)
             {
@@ -81,11 +82,11 @@ public class LayoutController : MonoBehaviour
                 GameObject newCard = Instantiate(cardPrefab, parent);
                 newCard.name = $"Card_{cardNumber}_{cardIndex}";
 
-                float x = rowStartX + c * (spriteSize.x * finalScale + spacingX * finalScale);
+                float x = startX + c * (spriteSize.x * finalScale + spacingX * finalScale);
                 newCard.transform.localPosition = new Vector3(x, y, 0f);
+                newCard.transform.localScale = Vector3.one * finalScale;
 
-                newCard.transform.localScale = new Vector3(finalScale, finalScale, 1f);
-
+                // Initialize card
                 Card card = newCard.GetComponent<Card>();
                 if (card != null)
                     card.Initialize(cardNumber);

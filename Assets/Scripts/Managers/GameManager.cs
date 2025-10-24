@@ -39,6 +39,7 @@ public class GameManager : MonoBehaviour
         SetGridbasedOnLevel();
     }
 
+    // Set grid size based on selected level
     public void  SetGridbasedOnLevel()
     {
         int selectedLevel = PlayerPrefs.GetInt("SelectedLevel", 1);
@@ -96,8 +97,7 @@ public class GameManager : MonoBehaviour
         if (total % 2 != 0) { Debug.LogWarning("Total cards must be even. Incrementing total by 1."); total += 1; }
         var deck = GenerateDeck(total);
 
-        // layout cards
-        ///layoutController.ClearBoard();
+        // spawn deck
         layoutController.SpawnDeck(deck, cardPrefab, cardsContainer);
     }
 
