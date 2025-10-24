@@ -176,5 +176,5 @@ MonoBehaviour:
   _sfxAudioSource: {fileID: 8471455665392766506}
   flipClip: {fileID: 8300000, guid: 19b5212d7f67341418288ec3e728df02, type: 3}
   matchClip: {fileID: 8300000, guid: e63da307303877b4eacf8ff0349e36ce, type: 3}
-  mismatchClip: {fileID: 8300000, guid: a46cd5bca032977448a7371e917d5f3b, type: 3}
+  mismatchClip: {fileID: 8300000, guid: 6e26c3381eef23744ac1198563f59b1d, type: 3}
   gameOverClip: {fileID: 8300000, guid: 4ef34bd9c283d7e468e42f8cf794be09, type: 3}

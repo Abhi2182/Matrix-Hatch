@@ -1405,7 +1405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc175f4aaafa4fc4cbb3bf49124d50b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mismatchDelay: 0.6
+  mismatchDelay: 0.4
   basePoints: 100
   comboWindow: 3
 --- !u!4 &1278642339

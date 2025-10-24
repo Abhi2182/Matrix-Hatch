@@ -10,7 +10,7 @@ public class MatchChecker : MonoBehaviour
     private bool isProcessing = false;
 
     [Header("Gameplay Settings")]
-    public float mismatchDelay = 0.6f;  // wait before flipping mismatched cards back
+    public float mismatchDelay = 0.5f;  // wait before flipping mismatched cards back
     public int basePoints = 100;
     public float comboWindow = 3f;      // time window for combo scoring
 
@@ -86,9 +86,9 @@ public class MatchChecker : MonoBehaviour
             }
             else // CARDS NOT MATCHED — flip both back after delay
             {
-                AudioManager.Instance?.PlayMismatch(); // play card mismatch sound
 
                 yield return new WaitForSeconds(mismatchDelay);
+                AudioManager.Instance?.PlayMismatch(); // play card mismatch sound
 
                 if (!card_A.isMatched && card_A.isFaceUp)
                     card_A.FlipBackImmediate();
