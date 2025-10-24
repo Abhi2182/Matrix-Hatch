@@ -10,23 +10,20 @@ public class GameManager : MonoBehaviour
     [Header("Level Data")]
     public LevelDatabase levelDatabase;
 
-    // layout config
     [Header("Layout Config")]
     public int rows = 4;
     public int cols = 4;
 
-    [Space(10)]
+    [Header("Gameplay")]
     public int score = 0;
     public int movesMade = 0;
     public bool isGameOver = false;
     public float showCardBackDelay = 1.5f;
 
-    // Prefab & containers (assign in inspector)
-    public GameObject cardPrefab;
-    public Transform cardsContainer;
-
-    // layout controller
-    public LayoutController layoutController;
+    [Header("References")]
+    [SerializeField] private GameObject cardPrefab;
+    [SerializeField] private Transform cardsContainer;
+    [SerializeField] private LayoutController layoutController;
 
     void Awake()
     {
@@ -36,49 +33,56 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // sanity: check components if not assigned
         if (layoutController == null) Debug.Log("LayoutController not assigned in GameManager!");
 
-        SetGridbasedOnLevel();
+        InitializeLevel();
     }
 
-    // Set grid size based on selected level
-    public void  SetGridbasedOnLevel()
+    #region --- LEVEL SETUP ---
+    private void InitializeLevel()
     {
-        int selectedLevel = PlayerPrefs.GetInt("SelectedLevel", 1);
+        int selectedLevel = Mathf.Clamp( 
+            PlayerPrefs.GetInt("SelectedLevel", 1), 1,
+            (levelDatabase != null && levelDatabase.levels.Count > 0) ? levelDatabase.levels.Count : 1
+        );
 
-        if (levelDatabase == null || levelDatabase.levels.Count == 0)
-        {
-            Debug.LogWarning("Level database not assigned or empty!");
-            rows = 2;
-            cols = 3;
-            showCardBackDelay = 1f;
-            StartNewGame(rows, cols);
-            return;
-        }
-
-        // Clamp selected level
-        selectedLevel = Mathf.Clamp(selectedLevel, 1, levelDatabase.levels.Count);
-        var currentLevel = levelDatabase.levels[selectedLevel - 1];
-
-        // Load from scriptable data
-        rows = currentLevel.rows;
-        cols = currentLevel.cols;
-        showCardBackDelay = currentLevel.showCardBackDelay;
-
-        //Debug.Log($"Loaded Level {currentLevel.levelNumber}: {rows}x{cols}, Delay={showCardBackDelay}");
+        LevelData currentLevel = GetLevelData(selectedLevel);
+        ApplyLevelSettings(currentLevel);
 
         StartNewGame(rows, cols);
     }
 
+    private LevelData GetLevelData(int levelIndex)
+    {
+        if (levelDatabase == null || levelDatabase.levels.Count == 0)
+        {
+            Debug.LogWarning("Level Database not assigned or empty. Using default values.");
+            return new LevelData { levelNumber = 1, rows = 2, cols = 3, showCardBackDelay = 1f };
+        }
+
+        return levelDatabase.levels[levelIndex - 1];
+    }
+
+    private void ApplyLevelSettings(LevelData level)
+    {
+        rows = level.rows;
+        cols = level.cols;
+        showCardBackDelay = level.showCardBackDelay;
+    }
+    #endregion
+
+    #region --- GAME FLOW ---
     public void StartNewGame(int r, int c)
     {
         isGameOver = false;
         score = 0;
         movesMade = 0;
+
         UIManager.Instance?.UpdateScore(score);
         UIManager.Instance?.UpdateMoves(movesMade);
-        rows = r; cols = c;
+
+        rows = r;
+        cols = c;
 
         // generate deck
         int total = rows * cols;
@@ -86,7 +90,7 @@ public class GameManager : MonoBehaviour
         var deck = GenerateDeck(total);
 
         // spawn deck
-        layoutController.SpawnDeck(deck, cardPrefab, cardsContainer);
+        layoutController?.SpawnDeck(deck, cardPrefab, cardsContainer);
     }
 
     // Generate numeric deck (pairs of numbers)
@@ -112,6 +116,9 @@ public class GameManager : MonoBehaviour
             (list[i], list[r]) = (list[r], list[i]);
         }
     }
+    #endregion
+
+    #region --- SCORE / MOVES ---
 
     public void AddScore(int points)
     {
@@ -131,6 +138,10 @@ public class GameManager : MonoBehaviour
         score = Mathf.Max(0, score - 5);
         UIManager.Instance?.UpdateScore(score);
     }
+
+    #endregion
+
+    #region --- GAME STATE ---
 
     public bool CanPlayerFlip(Card _card)
     {
@@ -158,8 +169,10 @@ public class GameManager : MonoBehaviour
 
     private void OnGameComplete()
     {
-        AudioManager.Instance?.PlayGameOver(); // play game over sound
         isGameOver = true;
+        AudioManager.Instance?.PlayGameOver(); // play game over sound
         UIManager.Instance?.ShowWinPanel(score);
     }
+
+    #endregion
 }

@@ -5,20 +5,17 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "LevelDatabase", menuName = "Game/Level Database", order = 0)]
 public class LevelDatabase : ScriptableObject
 {
-    [Serializable]
-    public class LevelInfo
-    {
-        [Header("Level Details")]
-        public int levelNumber = 1;
-
-        [Header("Grid Settings")]
-        public int rows = 2;
-        public int cols = 3;
-
-        [Header("Gameplay Settings")]
-        public float showCardBackDelay = 1.5f;
-    }
-
     [Header("All Level Configurations")]
-    public List<LevelInfo> levels = new List<LevelInfo>();
+    public List<LevelData> levels = new List<LevelData>();
+}
+
+[Serializable]
+public class LevelData
+{
+    public int levelNumber;
+    [Space(10)]
+    public int rows;
+    public int cols;
+    [Space(10)]
+    public float showCardBackDelay;
 }
