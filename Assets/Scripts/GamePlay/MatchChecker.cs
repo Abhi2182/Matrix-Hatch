@@ -74,6 +74,8 @@ public class MatchChecker : MonoBehaviour
                 int points = Mathf.RoundToInt(basePoints * (1 + comboCount * 0.25f));
                 GameManager.Instance?.AddScore(points);
 
+                AudioManager.Instance?.PlayMatch(); // play card match sound
+
                 // mark as matched + animate
                 StartCoroutine(card_A.OnMatchedAnimCoroutine());
                 StartCoroutine(card_B.OnMatchedAnimCoroutine());
@@ -84,6 +86,8 @@ public class MatchChecker : MonoBehaviour
             }
             else // CARDS NOT MATCHED — flip both back after delay
             {
+                AudioManager.Instance?.PlayMismatch(); // play card mismatch sound
+
                 yield return new WaitForSeconds(mismatchDelay);
 
                 if (!card_A.isMatched && card_A.isFaceUp)

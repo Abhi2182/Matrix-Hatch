@@ -128,7 +128,7 @@ public class Card : MonoBehaviour
     {
         if (GameManager.Instance != null && GameManager.Instance.CanPlayerFlip(this))
         {
-            //add flip sound here
+            AudioManager.Instance?.PlayFlip(); // play card flip sound
             TryFlip();
         }
     }

@@ -164,6 +164,7 @@ public class GameManager : MonoBehaviour
 
     private void OnGameComplete()
     {
+        AudioManager.Instance?.PlayGameOver(); // play game over sound
         isGameOver = true;
         UIManager.Instance?.ShowWinPanel(score);
     }
