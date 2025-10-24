@@ -5,7 +5,10 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
+    public static GameManager Instance;
+
+    [Header("Level Data")]
+    public LevelDatabase levelDatabase;
 
     // layout config
     [Header("Layout Config")]
@@ -43,42 +46,27 @@ public class GameManager : MonoBehaviour
     public void  SetGridbasedOnLevel()
     {
         int selectedLevel = PlayerPrefs.GetInt("SelectedLevel", 1);
-        // Example: define grid rows and cols based on level
-        switch (selectedLevel)
+
+        if (levelDatabase == null || levelDatabase.levels.Count == 0)
         {
-            case 1:
-                rows = 2;
-                cols = 3;
-                break;
-            case 2:
-                rows = 3;
-                cols = 4;
-                break;
-            case 3:
-                rows = 4;
-                cols = 4;
-                break;
-            case 4:
-                rows = 4;
-                cols = 5;
-                break;
-            case 5:
-                rows = 5;
-                cols = 6;
-                break;
-            case 6:
-                rows = 6;
-                cols = 7;
-                break;
-            case 7:
-                rows = 6;
-                cols = 8;
-                break;
-            default:
-                rows = 2;
-                cols = 3;
-                break;
+            Debug.LogWarning("Level database not assigned or empty!");
+            rows = 2;
+            cols = 3;
+            showCardBackDelay = 1f;
+            StartNewGame(rows, cols);
+            return;
         }
+
+        // Clamp selected level
+        selectedLevel = Mathf.Clamp(selectedLevel, 1, levelDatabase.levels.Count);
+        var currentLevel = levelDatabase.levels[selectedLevel - 1];
+
+        // Load from scriptable data
+        rows = currentLevel.rows;
+        cols = currentLevel.cols;
+        showCardBackDelay = currentLevel.showCardBackDelay;
+
+        //Debug.Log($"Loaded Level {currentLevel.levelNumber}: {rows}x{cols}, Delay={showCardBackDelay}");
 
         StartNewGame(rows, cols);
     }

@@ -1937,6 +1937,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a1fdbab12a1bd345be9dcf52594de6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelDatabase: {fileID: 11400000, guid: 8c32c6c29511e6f4c82f4cadd7f51237, type: 2}
   rows: 2
   cols: 8
   score: 0
