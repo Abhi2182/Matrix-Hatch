@@ -4,22 +4,24 @@ using UnityEngine;
 
 public class Card : MonoBehaviour
 {
+    [Header("Card Data")]
     public int cardID; // number for matching (1,2,3,...)
     public TMP_Text idText; // Text component on the front
     public Sprite backSprite; // back image for hidden state
     public Sprite frontSprite; // front image for shown state
 
-    [HideInInspector] public bool isFaceUp = false;
-    [HideInInspector] public bool isMatched = false;
-    [HideInInspector] public bool isFlipping = false;
-
+    [Header("Components")]
     [SerializeField]private SpriteRenderer spriteRenderer;
     [SerializeField]private BoxCollider2D boxCollder;
 
-    [Header("Flip Animation")]
+    [Header("Flip Animation Settings")]
     public float flipSpeed = 400f; // rotation speed in degrees per second
     private Quaternion faceRotation = Quaternion.Euler(0, 0, 0);
     private Quaternion backRotation = Quaternion.Euler(0, 180, 0);
+
+    [HideInInspector] public bool isFaceUp = false;
+    [HideInInspector] public bool isMatched = false;
+    [HideInInspector] public bool isFlipping = false;
 
     private void Awake()
     {
@@ -29,7 +31,16 @@ public class Card : MonoBehaviour
     {
         cardID = number;
         if (idText != null)
+        {
             idText.text = cardID.ToString();
+            idText.enabled = true;
+        }
+
+        // reset rotation and state
+        transform.rotation = faceRotation;
+        spriteRenderer.sprite = frontSprite;
+        isFaceUp = true;
+        isMatched = false;
 
         // Start coroutine for delayed back display
         StartCoroutine(ShowBackWithDelay(GameManager.Instance.showCardBackDelay));
@@ -46,8 +57,8 @@ public class Card : MonoBehaviour
         isFlipping = false;
         spriteRenderer.sprite = backSprite;
         boxCollder.enabled = true;
-        if (idText != null)
-            idText.enabled = false;
+        if (idText != null) idText.enabled = false;
+        transform.rotation = backRotation;
     }
 
     public void TryFlip()
@@ -60,11 +71,10 @@ public class Card : MonoBehaviour
     {
         isFlipping = true;
 
-        float rotationY = transform.eulerAngles.y;
-        float targetY = isFaceUp ? 180f : 0f;
         float startY = isFaceUp ? 0f : 180f;
-        float elapsed = 0f;
+        float targetY = isFaceUp ? 180f : 0f;
         float duration = Mathf.Abs(targetY - startY) / flipSpeed;
+        float elapsed = 0f;
 
         // halfway (90°) = change visible side
         while (elapsed < duration)
@@ -92,13 +102,11 @@ public class Card : MonoBehaviour
 
         transform.rotation = isFaceUp ? backRotation : faceRotation;
         isFaceUp = !isFaceUp;
-
         isFlipping = false;
 
         if (isFaceUp)
-        {
             MatchChecker.Instance?.EnqueueCard(this);
-        }
+        
     }
 
     public void FlipBackImmediate()
